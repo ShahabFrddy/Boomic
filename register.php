@@ -53,30 +53,41 @@ $csrf = csrf_token();
 ?>
 <!doctype html>
 <html lang="fa">
-<head><meta charset="utf-8"><title>ثبت‌نام</title></head>
+<head>
+    <meta charset="utf-8">
+    <title>ثبت‌نام</title>
+    <link rel="stylesheet" href="login-style.css">
+</head>
 <body>
-<h1>ثبت‌نام</h1>
-<?php if ($msg = flash_get('success')): ?>
-  <p style="color:green;"><?php echo e($msg); ?></p>
-<?php endif; ?>
+<div class="login-container">
+    <h1>ثبت‌نام</h1>
+    <p style="text-align: center; color: var(--discord-text-muted); margin-bottom: 20px;">برای پیوستن به گپ‌وگفت، یک حساب کاربری بسازید.</p>
 
-<?php if (!empty($errors)): ?>
-  <ul style="color:red;">
-    <?php foreach ($errors as $err): ?>
-      <li><?php echo e($err); ?></li>
-    <?php endforeach; ?>
-  </ul>
-<?php endif; ?>
+    <?php if ($msg = flash_get('success')): ?>
+        <p class="success-message" style="color:green; text-align: center; background-color: #3e5a3e; padding: 10px; border-radius: 4px; margin-bottom: 20px;"><?php echo e($msg); ?></p>
+    <?php endif; ?>
 
-<form method="post" action="register.php">
-  <input type="hidden" name="_csrf" value="<?php echo e($csrf); ?>">
-  <label>نام کاربری: <input name="username" value="<?php echo e($_POST['username'] ?? '') ?>"></label><br>
-  <label>ایمیل: <input name="email" value="<?php echo e($_POST['email'] ?? '') ?>"></label><br>
-  <label>رمز عبور: <input type="password" name="password"></label><br>
-  <label>تکرار رمز عبور: <input type="password" name="password2"></label><br>
-  <button type="submit">ثبت‌نام</button>
-</form>
+    <?php if (!empty($errors)): ?>
+        <ul class="error-list">
+            <?php foreach ($errors as $err): ?>
+                <li><?php echo e($err); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
 
-<p>قبلاً ثبت‌نام کرده‌اید؟ <a href="login.php">ورود</a></p>
+    <form method="post" action="register.php">
+        <input type="hidden" name="_csrf" value="<?php echo e($csrf); ?>">
+
+        <label>ایمیل: <input name="email" type="email" value="<?php echo e($_POST['email'] ?? '') ?>" required></label>
+        <label>نام کاربری: <input name="username" type="text" value="<?php echo e($_POST['username'] ?? '') ?>" required></label>
+        <label>رمز عبور: <input type="password" name="password" required></label>
+        <label>تکرار رمز عبور: <input type="password" name="password2" required></label>
+
+        <button type="submit">ادامه</button>
+    </form>
+
+    <p style="text-align: center;">با ثبت‌نام، موافقت خود را با <a href="#">شرایط خدمات</a> و <a href="#">سیاست حفظ حریم خصوصی</a> ما اعلام می‌کنید.</p>
+    <p style="text-align: center; margin-top: 10px;">قبلاً ثبت‌نام کرده‌اید؟ <a href="login.php">ورود</a></p>
+</div>
 </body>
 </html>

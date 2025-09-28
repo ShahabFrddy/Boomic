@@ -39,26 +39,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $csrf = csrf_token();
 ?>
 <!doctype html>
-<html lang="fa">
-<head><meta charset="utf-8"><title>ورود عزیز</title></head>
-<body>
-<h1>ورود</h1>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8"><title>ورود عزیز</title>
+    <link rel="stylesheet" href="login-style.css">
+</head>
+    <body>
+        <div class="login-container">
+            <h1>ورود</h1>
 
-<?php if (!empty($errors)): ?>
-  <ul style="color:red;">
-    <?php foreach ($errors as $err): ?>
-      <li><?php echo e($err); ?></li>
-    <?php endforeach; ?>
-  </ul>
-<?php endif; ?>
+            <?php if (!empty($errors)): ?>
+            <ul class="error-list" style="color:red;">
+                <?php foreach ($errors as $err): ?>
+                <li><?php echo e($err); ?></li>
+                <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
 
-<form method="post" action="login.php">
-  <input type="hidden" name="_csrf" value="<?php echo e($csrf); ?>">
-  <label>نام کاربری یا ایمیل: <input name="login" value="<?php echo e($_POST['login'] ?? '') ?>"></label><br>
-  <label>رمز عبور: <input type="password" name="password"></label><br>
-  <button type="submit">ورود</button>
-</form>
+            <form method="post" action="login.php">
+                <input type="hidden" name="_csrf" value="<?php echo e($csrf); ?>">
+                <label>نام کاربری یا ایمیل: <input type="text" name="login" value="<?php echo e($_POST['login'] ?? '') ?>"></label>
+                <label>رمز عبور: <input type="password" name="password"></label><br>
+                <button type="submit">ورود</button>
+            </form>
 
-<p>هنوز عضو نیستی؟ <a href="register.php">ثبت‌نام</a></p>
-</body>
+            <p>هنوز عضو نیستی؟ <a href="register.php">ثبت‌نام</a></p>
+        </div>
+    </body>
 </html>

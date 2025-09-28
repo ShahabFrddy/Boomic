@@ -1,0 +1,188 @@
+/* تنظیمات عمومی */
+@font-face {
+    font-family: 'Whitney'; /* فونت دیسکورد (نزدیک‌ترین جایگزین یا یک فونت سیستمی شبیه به آن) */
+    src: local('Whitney'), local('Arial'); /* از فونت‌های محلی استفاده کنید */
+    /* در یک محیط واقعی، باید فونت Whitney را بارگذاری کنید یا از فونت‌های شبیه به آن (مانند Inter یا Rubik) استفاده کنید. */
+}
+
+:root {
+    --discord-dark-bg: #36393f; /* پس‌زمینه اصلی تاریک دیسکورد */
+    --discord-card-bg: #2f3136; /* پس‌زمینه کارت/فرم */
+    --discord-text-color: #dcddde; /* رنگ متن اصلی */
+    --discord-text-muted: #b9bbbe; /* رنگ متن کم‌رنگ */
+    --discord-primary: #5865f2; /* رنگ اصلی (آبی دیسکورد) */
+    --discord-input-bg: #202225; /* رنگ پس‌زمینه فیلدهای ورودی */
+    --error-color: #f04747; /* رنگ خطا */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Whitney', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--discord-dark-bg);
+    padding: 20px;
+}
+
+/* استایل کانتینر اصلی فرم */
+.login-container {
+    background-color: var(--discord-card-bg);
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    width: 400px; /* عرض معمول فرم ورود دیسکورد */
+    color: var(--discord-text-color);
+}
+
+/* استایل تیتر */
+h1 {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+    color: #fff; /* تیتر معمولاً سفیدتر است */
+}
+
+.login-container h1:after {
+    content: "به بومیک خوش اومدید"; /* متن خوش‌آمدگویی دیسکورد را اضافه کنید */
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--discord-text-muted);
+    margin-top: 4px;
+    margin-bottom: 20px;
+}
+
+/* استایل لیست خطاها */
+.login-container ul {
+    list-style: none;
+    padding: 10px;
+    background-color: #4b3636; /* پس‌زمینه ملایم‌تر برای خطاها */
+    border: 1px solid var(--error-color);
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.login-container ul li {
+    color: var(--error-color);
+    font-size: 14px;
+}
+
+/* استایل فرم */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* استایل برچسب‌ها و ورودی‌ها */
+label {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--discord-text-muted);
+    letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    background-color: var(--discord-input-bg);
+    color: var(--discord-text-color);
+    border: 1px solid #202225; /* مرز کمی تیره‌تر */
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 8px;
+    font-size: 16px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--discord-primary);
+}
+
+/* استایل دکمه */
+button[type="submit"] {
+    background-color: var(--discord-primary);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.17s ease;
+    height: 44px; /* ارتفاع استاندارد دکمه دیسکورد */
+}
+
+button[type="submit"]:hover {
+    background-color: #4752c4; /* کمی تیره‌تر شدن هنگام هاور */
+}
+
+/* استایل لینک ثبت‌نام */
+.login-container p {
+    font-size: 14px;
+    margin-top: 20px;
+    color: var(--discord-text-muted);
+}
+
+.login-container a {
+    color: var(--discord-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
+
+/* login-style.css - تغییرات جزئی برای پشتیبانی بهتر از صفحه ثبت‌نام */
+
+/* ... (بقیه کدهای CSS قبلی) ... */
+
+/* تغییر نمایش تیتر برای صفحه ثبت‌نام */
+.login-container h1 {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+/* برای اینکه فقط در صفحه ورود (که قبلاً در پاسخ قبلی به h1:after استایل داده بودیم) متن ثانویه نمایش داده شود، آن کد را حذف کرده و در خود HTML وارد کنید. */
+
+/* استایل لیست خطاها را بهبود می‌دهیم تا از استایل اینلاین (inline style) در HTML رها شویم */
+.error-list { /* به جای ul:before */
+    list-style: none;
+    padding: 10px;
+    background-color: #4b3636;
+    border: 1px solid var(--error-color);
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.error-list li {
+    color: var(--error-color);
+    font-size: 14px;
+}
+
+/* استایل پیام موفقیت */
+.success-message {
+    text-align: center;
+    color: #43b581; /* سبز روشن دیسکورد */
+    background-color: #3e5a3e;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
