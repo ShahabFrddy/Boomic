@@ -40,7 +40,7 @@ $csrf = csrf_token();
 ?>
 <!doctype html>
 <html lang="fa">
-<head><meta charset="utf-8"><title>ورود</title></head>
+<head><meta charset="utf-8"><title>ورود عزیز</title></head>
 <body>
 <h1>ورود</h1>
 
