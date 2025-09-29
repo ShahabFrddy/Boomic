@@ -1,38 +1,67 @@
 <?php
-session_start();
 require_once 'config.php';
 
+if (isLoggedIn()) {
+    header('Location: index.php');
+    exit();
+}
+
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
     
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-    
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        header("Location: dashboard.php");
-        exit();
+    if (empty($username) || empty($password)) {
+        $error = 'لطفاً تمام فیلدها را پر کنید';
     } else {
-        $error = "Invalid email or password!";
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            header('Location: index.php');
+            exit();
+        } else {
+            $error = 'نام کاربری یا رمز عبور نادرست است';
+        }
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
-    <title>Login - Discord Clone</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود - Discord Clone</title>
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-    <h2>Login</h2>
-    <?php if (isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
-    <form method="POST">
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
+    <div class="auth-container">
+        <form class="auth-form" method="POST" action="">
+            <h2>خوش آمدید!</h2>
+            
+            <?php if($error): ?>
+                <div style="color: #ed4245; margin-bottom: 15px; text-align: center;"><?= $error ?></div>
+            <?php endif; ?>
+            
+            <div class="form-group">
+                <label for="username">ایمیل یا نام کاربری</label>
+                <input type="text" class="form-control" id="username" name="username" value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">رمز عبور</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn">ورود</button>
+            
+            <div class="auth-link">
+                <a href="register.php">نیاز به حساب کاربری دارید؟</a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
