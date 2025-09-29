@@ -176,25 +176,6 @@ body {
     line-height: 1.4;
 }
 
-.message-input-container {
-    padding: 16px;
-}
-
-.message-input {
-    width: 100%;
-    background-color: #40444b;
-    border: none;
-    border-radius: 8px;
-    padding: 12px;
-    color: #dcddde;
-    font-size: 16px;
-    resize: none;
-}
-
-.message-input:focus {
-    outline: none;
-}
-
 /* منوی کاربر */
 .user-menu {
     background-color: #292b2f;
@@ -398,4 +379,254 @@ body {
 
 .btn-secondary:hover {
     background-color: #686d73;
+}
+
+
+/* استایل‌های جدید برای input و دکمه ارسال */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.send-button {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #b9bbbe;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.2s;
+    width: 32px;
+    height: 32px;
+}
+
+.send-button:hover {
+    color: #dcddde;
+    background-color: rgba(79, 84, 92, 0.4);
+}
+
+.send-button:disabled {
+    color: #72767d;
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+/* تغییر رنگ دکمه وقتی متن وجود دارد */
+.message-input:not(:placeholder-shown) + .send-button {
+    color: #5865f2;
+}
+
+.message-input:not(:placeholder-shown) + .send-button:hover {
+    color: #4752c4;
+    background-color: rgba(88, 101, 242, 0.1);
+}
+
+.message-input {
+    width: 100%;
+    background-color: #40444b;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 50px 12px 12px; /* padding-right را بیشتر کردیم */
+    color: #dcddde;
+    font-size: 16px;
+    resize: none;
+    max-height: 150px;
+    font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.message-input:focus {
+    outline: none;
+}
+
+.message-input::placeholder {
+    color: #72767d;
+}
+
+/* استایل برای وقتی که دکمه نمایش داده نمی‌شود (مخفی است) */
+.send-button.hidden {
+    display: none;
+}
+
+/* استایل برای وقتی که دکمه نمایش داده می‌شود */
+.send-button:not(.hidden) {
+    display: flex;
+}
+
+/* استایل‌های جدید */
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: background-color 0.2s;
+}
+
+.member-item:hover {
+    background-color: rgba(79, 84, 92, 0.32);
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #b9bbbe;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.back-button:hover {
+    background-color: rgba(79, 84, 92, 0.3);
+}
+
+/* استایل منوی کشویی */
+.context-menu {
+    position: fixed;
+    background: #18191c;
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+    border: 1px solid #33353b;
+    z-index: 10000;
+    min-width: 180px;
+    display: none;
+    animation: contextMenuAppear 0.1s ease-out;
+}
+
+@keyframes contextMenuAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #b9bbbe;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.context-menu-item:hover {
+    background-color: #4752c4;
+    color: white;
+}
+
+.context-menu-item span {
+    margin-right: 8px;
+}
+
+/* استایل‌های مودال */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #36393f;
+    border-radius: 8px;
+    width: 440px;
+    max-width: 90%;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    animation: modalAppear 0.2s ease-out;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-header {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: white;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.modal-body {
+    padding: 16px;
+}
+
+/* استایل‌های عضو */
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: background-color 0.2s;
+}
+
+.member-item:hover {
+    background-color: rgba(79, 84, 92, 0.32);
+}
+
+.friend-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-left: 12px;
+    object-fit: cover;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #b9bbbe;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-button:hover {
+    background-color: rgba(79, 84, 92, 0.3);
+    color: white;
 }

@@ -48,9 +48,9 @@ if ($selected_server_id) {
         $selected_channel_id = isset($_GET['channel']) ? $_GET['channel'] : (count($channels) > 0 ? $channels[0]['id'] : null);
         
         if ($selected_channel_id) {
-            // دریافت پیام‌های کانال
+            // دریافت پیام‌های کانال - نسخه اصلاح شده
             $stmt = $pdo->prepare("
-                SELECT m.*, u.username, u.avatar 
+                SELECT m.*, u.username, u.avatar, u.id as user_id
                 FROM messages m 
                 JOIN users u ON m.user_id = u.id 
                 WHERE m.channel_id = ? 
@@ -68,13 +68,254 @@ if ($selected_server_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Clone</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=23">
+    <script src="script.js" defer></script>
+    <style>
+        /* استایل‌های اضافی برای عناصر جدید */
+        .context-menu {
+            position: fixed;
+            background: #18191c;
+            border-radius: 8px;
+            padding: 6px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+            border: 1px solid #33353b;
+            z-index: 10000;
+            min-width: 180px;
+            display: none;
+            animation: contextMenuAppear 0.1s ease-out;
+        }
+
+        @keyframes contextMenuAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #b9bbbe;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background-color: #4752c4;
+            color: white;
+        }
+
+        .context-menu-item span {
+            margin-right: 8px;
+        }
+
+        /* استایل‌های مودال پروفایل کاربر */
+        .user-profile-modal .modal-content {
+            max-width: 400px;
+            background-color: #36393f;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .user-profile-header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .user-profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+
+        .user-profile-name {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .user-profile-info {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .user-profile-body {
+            padding: 20px;
+        }
+
+        .user-profile-bio {
+            background-color: #2f3136;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .user-profile-bio h4 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .user-profile-bio p {
+            color: #dcddde;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .user-profile-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-profile-actions .btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .btn-friend {
+            background-color: #3ba55c;
+        }
+
+        .btn-friend:hover {
+            background-color: #2d7c46;
+        }
+
+        .btn-message {
+            background-color: #5865f2;
+        }
+
+        .btn-message:hover {
+            background-color: #4752c4;
+        }
+
+        .btn-pending {
+            background-color: #747f8d;
+            cursor: not-allowed;
+        }
+
+        .btn-pending:hover {
+            background-color: #747f8d;
+        }
+
+        /* استایل‌های عضو */
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 2px;
+            transition: background-color 0.2s;
+        }
+
+        .member-item:hover {
+            background-color: rgba(79, 84, 92, 0.32);
+        }
+
+        .friend-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-left: 12px;
+            object-fit: cover;
+        }
+
+        /* استایل‌های مودال */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #36393f;
+            border-radius: 8px;
+            width: 440px;
+            max-width: 90%;
+            box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.2s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: white;
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #b9bbbe;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background-color: rgba(79, 84, 92, 0.3);
+            color: white;
+        }
+    </style>
 </head>
 <body>
+    
     <!-- Sidebar سرورها -->
     <div class="servers-sidebar">
         <?php foreach($servers as $server): ?>
-            <div class="server-icon" onclick="location.href='index.php?server=<?= $server['id'] ?>'">
+            <div class="server-icon" 
+                onclick="location.href='index.php?server=<?= $server['id'] ?>'" 
+                oncontextmenu="showContextMenu(event, <?= $server['id'] ?>)"
+                title="<?= htmlspecialchars($server['name']) ?>">
                 <?php if($server['icon'] && $server['icon'] != 'server_default.png'): ?>
                     <img src="uploads/<?= $server['icon'] ?>" alt="<?= $server['name'] ?>">
                 <?php else: ?>
@@ -86,9 +327,17 @@ if ($selected_server_id) {
         <div class="server-icon add-server" onclick="openModal('createServerModal')">
             +
         </div>
+
+        <!-- آیکون دوستان -->
+        <div class="server-icon" onclick="location.href='friends.php'" title="دوستان">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L9 10.5V12H15V10.5L21 9ZM15 19H9V20C9 21.1 9.9 22 11 22H13C14.1 22 15 21.1 15 20V19ZM18 14H6V16H18V14ZM21 17H3V19H21V17Z"/>
+            </svg>
+        </div>
         
         <div class="server-icon" onclick="location.href='profile.php'">
-            <img src="uploads/<?= $user['avatar'] ?>" alt="پروفایل">
+            <img src="uploads/<?= $user['avatar'] ?>" alt="پروفایل"
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iMTIiIGN5PSI5IiByPSI0LjUiIGZpbGw9IiNkY2RkZGUiLz4KPHBhdGggZD0iTTEyIDE1QzE1IDE1IDE4IDE3IDE4IDE4LjVWMjJINlYxOC41QzYgMTcgOSAxNSAxMiAxNVoiIGZpbGw9IiNkY2RkZGUiLz4KPC9zdmc+'">
         </div>
     </div>
     
@@ -97,7 +346,7 @@ if ($selected_server_id) {
     <div class="channels-sidebar">
         <div class="server-header">
             <?= $selected_server['name'] ?>
-        </div>
+        </div>        
         
         <div class="channels-list">
             <div class="channel-category">کانال‌های متنی</div>
@@ -118,7 +367,8 @@ if ($selected_server_id) {
         </div>
         
         <div class="user-menu">
-            <img class="user-avatar" src="uploads/<?= $user['avatar'] ?>" alt="<?= $user['username'] ?>">
+            <img class="user-avatar" src="uploads/<?= $user['avatar'] ?>" alt="<?= $user['username'] ?>"
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxMiIgcj0iNiIgZmlsbD0iI2RjZGRkZSIvPgo8cGF0aCBkPSJNMTYgMjBDMjAgMjAgMjQgMjIgMjQgMjZIMThDMTggMjIgMTYgMjAgMTYgMjBaIiBmaWxsPSIjZGNkZGRlIi8+Cjwvc3ZnPgo='">
             <div class="user-info">
                 <div class="username"><?= $user['username'] ?></div>
                 <div class="user-tag">#<?= $user_id ?></div>
@@ -147,10 +397,14 @@ if ($selected_server_id) {
             <div class="messages-container" id="messages-container">
                 <?php foreach($messages as $message): ?>
                     <div class="message">
-                        <img class="message-avatar" src="uploads/<?= $message['avatar'] ?>" alt="<?= $message['username'] ?>">
+                        <img class="message-avatar" src="uploads/<?= $message['avatar'] ?>" alt="<?= $message['username'] ?>"
+                            onclick="showUserProfile(<?= $message['user_id'] ?>)"
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNy41IiBmaWxsPSIjZGNkZGRlIi8+CjxwYXRoIGQ9Ik0yMCAyNUMzMCAyNSAzOCAzMCAzOCAzNUgyQzIgMzAgMTAgMjUgMjAgMjVaIiBmaWxsPSIjZGNkZGRlIi8+Cjwvc3ZnPgo='">
                         <div class="message-content">
                             <div class="message-header">
-                                <span class="message-author"><?= $message['username'] ?></span>
+                                <span class="message-author" onclick="showUserProfile(<?= $message['user_id'] ?>)">
+                                    <?= htmlspecialchars($message['username']) ?>
+                                </span>
                                 <span class="message-time"><?= date('H:i', strtotime($message['created_at'])) ?></span>
                             </div>
                             <div class="message-text"><?= htmlspecialchars($message['content']) ?></div>
@@ -160,10 +414,16 @@ if ($selected_server_id) {
             </div>
             
             <div class="message-input-container">
-                <form method="POST" action="send_message.php">
+                <form method="POST" action="send_message.php" id="message-form">
                     <input type="hidden" name="channel_id" value="<?= $selected_channel_id ?>">
-                    <textarea class="message-input" name="message" placeholder="پیام خود را در #<?= $channel_name ?> بنویسید" rows="1"></textarea>
-                    <button type="submit" style="display: none;">ارسال</button>
+                    <div class="input-wrapper">
+                        <textarea class="message-input" name="message" placeholder="پیام خود را در #<?= $channel_name ?> بنویسید" rows="1" id="message-textarea"></textarea>
+                        <button type="submit" class="send-button hidden" id="send-button">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </form>
             </div>
         <?php else: ?>
@@ -196,6 +456,7 @@ if ($selected_server_id) {
         <div class="modal-content">
             <div class="modal-header">
                 <h3>سرور خود را سفارشی کنید</h3>
+                <button type="button" class="back-button" onclick="closeModal('createServerModal')">×</button>
             </div>
             <form method="POST" action="create_server.php" enctype="multipart/form-data">
                 <div class="modal-body">
@@ -221,6 +482,7 @@ if ($selected_server_id) {
         <div class="modal-content">
             <div class="modal-header">
                 <h3>ایجاد کانال</h3>
+                <button type="button" class="back-button" onclick="closeModal('createChannelModal')">×</button>
             </div>
             <form method="POST" action="create_channel.php">
                 <input type="hidden" name="server_id" value="<?= $selected_server_id ?>">
@@ -244,30 +506,88 @@ if ($selected_server_id) {
             </form>
         </div>
     </div>
-    
+
+    <!-- مدال نمایش اعضای سرور -->
+    <div id="membersModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>اعضای سرور</h3>
+                <button type="button" class="back-button" onclick="closeModal('membersModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="members-list" style="max-height: 400px; overflow-y: auto;">
+                    <!-- لیست اعضا اینجا لود می‌شود -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مدال مدیریت لینک‌های دعوت -->
+    <div id="inviteModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>دعوت به سرور</h3>
+                <button type="button" class="back-button" onclick="closeModal('inviteModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>لینک دعوت جدید</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="form-control" id="new-invite-link" readonly style="flex-grow: 1;">
+                        <button type="button" class="btn" onclick="generateInvite()">ایجاد لینک</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>لینک‌های فعال</label>
+                    <div id="active-invites" style="max-height: 200px; overflow-y: auto;">
+                        <!-- لینک‌های فعال اینجا نمایش داده می‌شوند -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-        // بستن مدال با کلیک خارج از آن
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
+        // مدیریت ارسال پیام در چت
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageTextarea = document.getElementById('message-textarea');
+            const messageForm = document.getElementById('message-form');
+            const sendButton = document.getElementById('send-button');
+            
+            if (messageTextarea && messageForm && sendButton) {
+                messageTextarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+                    
+                    if (this.value.trim() !== '') {
+                        sendButton.classList.remove('hidden');
+                    } else {
+                        sendButton.classList.add('hidden');
+                    }
+                });
+                
+                messageTextarea.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (this.value.trim() !== '') {
+                            messageForm.submit();
+                        }
+                    }
+                });
+                
+                messageTextarea.style.height = 'auto';
+                messageTextarea.style.height = Math.min(messageTextarea.scrollHeight, 150) + 'px';
+                sendButton.classList.add('hidden');
             }
-        }
-        
-        // اسکرول به پایین در پیام‌ها
-        window.onload = function() {
+
+            // اسکرول به پایین در پیام‌ها
             const messagesContainer = document.getElementById('messages-container');
             if (messagesContainer) {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-        }
+        });
     </script>
+
 </body>
 </html>
