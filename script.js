@@ -40,6 +40,9 @@ function createContextMenu() {
         <div class="context-menu-item" onclick="showInviteModalFromContext()">
             <span>🔗 لینک دعوت</span>
         </div>
+        <div class="context-menu-item" onclick="showServerSettings()">
+            <span>⚙️ تنظیمات سرور</span>
+        </div>
     `;
     document.body.appendChild(contextMenu);
 }
@@ -425,3 +428,287 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// نمایش تنظیمات سرور
+// نمایش تنظیمات سرور - نسخه به‌روز شده با دکمه حذف
+async function showServerSettings() {
+    if (!currentContextServerId) {
+        alert('خطا: سرور مشخص نشده');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`get_server_info.php?server_id=${currentContextServerId}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            alert('خطا: ' + data.error);
+            return;
+        }
+
+        // ایجاد مودال تنظیمات سرور
+        const settingsModal = document.createElement('div');
+        settingsModal.className = 'modal server-settings-modal';
+        settingsModal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>تنظیمات سرور</h3>
+                    <button type="button" class="back-button" onclick="closeServerSettings()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="server-settings-form" enctype="multipart/form-data">
+                        <input type="hidden" name="server_id" value="${data.server.id}">
+                        
+                        <div class="form-group">
+                            <label>آیکون سرور</label>
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <img id="server-icon-preview" src="uploads/${data.server.icon}" 
+                                     style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; cursor: pointer;"
+                                     onclick="document.getElementById('server-icon-input').click()"
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTUiIGZpbGw9IiNkY2RkZGUiLz4KPHBhdGggZD0iTTQwIDUwQzUwIDUwIDU4IDU4IDU4IDY4SDIyQzIyIDU4IDMwIDUwIDQwIDUwWiIgZmlsbD0iI2RjZGRkZSIvPgo8L3N2Zz4K'">
+                                <input type="file" id="server-icon-input" name="server_icon" accept="image/*" style="display: none;" onchange="previewServerIcon(this)">
+                                <div style="color: #b9bbbe; font-size: 12px; margin-top: 5px;">برای تغییر آیکون کلیک کنید</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="server-name">نام سرور</label>
+                            <input type="text" class="form-control" id="server-name" name="server_name" 
+                                   value="${data.server.name}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>اطلاعات سرور</label>
+                            <div style="background: #2f3136; padding: 15px; border-radius: 4px;">
+                                <div style="color: #b9bbbe; font-size: 12px;">
+                                    <div>مالک: شما</div>
+                                    <div>تاریخ ایجاد: ${new Date(data.server.created_at).toLocaleDateString('fa-IR')}</div>
+                                    <div>تعداد اعضا: ${data.server.member_count || 1} نفر</div>
+                                    <div>تعداد کانال‌ها: ${data.server.channel_count || 0} کانال</div>
+                                    <div>ID سرور: ${data.server.id}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" class="btn btn-secondary" onclick="closeServerSettings()" style="flex: 1;">
+                                لغو
+                            </button>
+                            <button type="submit" class="btn" style="flex: 1;">
+                                ذخیره تغییرات
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- بخش حذف سرور -->
+                    <div class="danger-zone">
+                        <h4 style="color: #ed4245; margin-bottom: 15px;">⚠️ منطقه خطر</h4>
+                        <p style="color: #b9bbbe; font-size: 14px; margin-bottom: 15px;">
+                            با حذف سرور، تمام اطلاعات شامل کانال‌ها، پیام‌ها و اعضا به طور دائمی پاک می‌شوند. این عمل غیرقابل بازگشت است.
+                        </p>
+                        <button type="button" class="btn btn-danger" onclick="showDeleteConfirmation(${data.server.id}, '${data.server.name}')">
+                            🗑️ حذف سرور
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(settingsModal);
+        settingsModal.style.display = 'flex';
+        window.currentSettingsModal = settingsModal;
+
+        // مدیریت ارسال فرم
+        const form = document.getElementById('server-settings-form');
+        form.addEventListener('submit', handleServerSettingsSubmit);
+
+        // بستن مودال با کلیک خارج
+        settingsModal.addEventListener('click', function(e) {
+            if (e.target === settingsModal) {
+                closeServerSettings();
+            }
+        });
+
+    } catch (error) {
+        console.error('Error loading server settings:', error);
+        alert('خطا در بارگذاری تنظیمات سرور');
+    }
+    
+    hideContextMenu();
+}
+// نمایش تایید حذف سرور
+function showDeleteConfirmation(serverId, serverName) {
+    const confirmationModal = document.createElement('div');
+    confirmationModal.className = 'modal delete-confirmation-modal';
+    confirmationModal.innerHTML = `
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 style="color: #ed4245;">⚠️ حذف سرور</h3>
+                <button type="button" class="back-button" onclick="closeDeleteConfirmation()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px; color: #ed4245; margin-bottom: 10px;">🗑️</div>
+                    <h4 style="color: white; margin-bottom: 10px;">آیا مطمئن هستید؟</h4>
+                </div>
+                
+                <div style="background: #2f3136; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="color: #dcddde; margin-bottom: 10px;">
+                        شما در حال حذف سرور <strong>"${serverName}"</strong> هستید.
+                    </p>
+                    <p style="color: #ed4245; font-size: 14px;">
+                        این عمل تمام اطلاعات زیر را به طور دائمی پاک می‌کند:
+                    </p>
+                    <ul style="color: #b9bbbe; font-size: 14px; margin: 10px 0; padding-right: 20px;">
+                        <li>همه کانال‌ها و پیام‌ها</li>
+                        <li>لیست اعضا و عضویت‌ها</li>
+                        <li>لینک‌های دعوت</li>
+                        <li>تنظیمات سرور</li>
+                    </ul>
+                    <p style="color: #ed4245; font-size: 14px; font-weight: bold;">
+                        این عمل غیرقابل بازگشت است!
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="delete-confirmation-input">
+                        برای تایید، عبارت <strong>"delete"</strong> را در کادر زیر تایپ کنید:
+                    </label>
+                    <input type="text" class="form-control" id="delete-confirmation-input" 
+                           placeholder="delete" style="text-align: center;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirmation()" style="flex: 1;">
+                        لغو
+                    </button>
+                    <button type="button" class="btn btn-danger" id="delete-server-btn" disabled style="flex: 1;">
+                        حذف سرور
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(confirmationModal);
+    confirmationModal.style.display = 'flex';
+    window.currentDeleteModal = confirmationModal;
+
+    // مدیریت ورودی تایید
+    const confirmationInput = document.getElementById('delete-confirmation-input');
+    const deleteButton = document.getElementById('delete-server-btn');
+
+    confirmationInput.addEventListener('input', function() {
+        deleteButton.disabled = this.value.toLowerCase() !== 'delete';
+    });
+
+    // مدیریت کلیک دکمه حذف
+    deleteButton.addEventListener('click', function() {
+        deleteServer(serverId);
+    });
+
+    // بستن مودال با کلیک خارج
+    confirmationModal.addEventListener('click', function(e) {
+        if (e.target === confirmationModal) {
+            closeDeleteConfirmation();
+        }
+    });
+
+    // بستن مودال تنظیمات اصلی
+    closeServerSettings();
+}
+
+// بستن مودال تایید حذف
+function closeDeleteConfirmation() {
+    if (window.currentDeleteModal) {
+        window.currentDeleteModal.remove();
+        window.currentDeleteModal = null;
+    }
+}
+
+// حذف سرور
+async function deleteServer(serverId) {
+    const confirmationInput = document.getElementById('delete-confirmation-input');
+    
+    if (confirmationInput.value.toLowerCase() !== 'delete') {
+        alert('لطفاً عبارت "delete" را برای تایید وارد کنید');
+        return;
+    }
+
+    try {
+        const response = await fetch('delete_server.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `server_id=${serverId}&confirmation=delete`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(data.message);
+            closeDeleteConfirmation();
+            
+            // ریدایرکت به صفحه اصلی
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.href = 'index.php';
+            }
+        } else {
+            alert(data.error || 'خطا در حذف سرور');
+        }
+    } catch (error) {
+        console.error('Error deleting server:', error);
+        alert('خطا در حذف سرور');
+    }
+}
+
+// پیش‌نمایش آیکون سرور
+function previewServerIcon(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('server-icon-preview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// مدیریت ارسال فرم تنظیمات
+async function handleServerSettingsSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('update_server_settings.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(data.message);
+            closeServerSettings();
+            // رفرش صفحه برای نمایش تغییرات
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            alert(data.error || 'خطا در ذخیره تنظیمات');
+        }
+    } catch (error) {
+        console.error('Error updating server settings:', error);
+        alert('خطا در ذخیره تنظیمات');
+    }
+}
+
+// بستن مودال تنظیمات
+function closeServerSettings() {
+    if (window.currentSettingsModal) {
+        window.currentSettingsModal.remove();
+        window.currentSettingsModal = null;
+    }
+}

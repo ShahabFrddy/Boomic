@@ -630,3 +630,113 @@ body {
     background-color: rgba(79, 84, 92, 0.3);
     color: white;
 }
+
+
+/* استایل‌های تنظیمات سرور */
+.server-settings-modal .modal-content {
+    max-width: 500px;
+}
+
+.server-settings-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.server-settings-modal .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b9bbbe;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.server-settings-modal .form-control {
+    width: 100%;
+    padding: 10px;
+    background-color: #40444b;
+    border: none;
+    border-radius: 3px;
+    color: #dcddde;
+    font-size: 16px;
+}
+
+.server-settings-modal .btn-secondary {
+    background-color: #4f545c;
+}
+
+.server-settings-modal .btn-secondary:hover {
+    background-color: #686d73;
+}
+
+/* پیش‌نمایش آیکون */
+#server-icon-preview {
+    transition: transform 0.2s;
+}
+
+#server-icon-preview:hover {
+    transform: scale(1.05);
+}
+
+/* استایل‌های دکمه حذف و منطقه خطر */
+.btn-danger {
+    background-color: #ed4245;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #c03537;
+}
+
+.btn-danger:disabled {
+    background-color: #747f8d;
+    cursor: not-allowed;
+}
+
+.delete-confirmation-modal .modal-content {
+    max-width: 450px;
+}
+
+.delete-confirmation-modal .form-group label {
+    color: #dcddde;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.delete-confirmation-modal .form-control {
+    background-color: #40444b;
+    border: 1px solid #ed4245;
+    color: #dcddde;
+}
+
+.delete-confirmation-modal .form-control:focus {
+    outline: none;
+    border-color: #ed4245;
+    box-shadow: 0 0 0 2px rgba(237, 66, 69, 0.3);
+}
+
+/* منطقه خطر */
+.danger-zone {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #40444b;
+}
+
+.danger-zone h4 {
+    color: #ed4245;
+    margin-bottom: 15px;
+}
+
+.danger-zone p {
+    color: #b9bbbe;
+    font-size: 14px;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
