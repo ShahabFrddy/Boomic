@@ -444,6 +444,14 @@ body {
     line-height: 1.5;
 }
 
+.message-input.space{
+    margin-left: 40px;
+}
+
+.message-input:not(.space) {
+    margin-left: 0px;
+}
+
 .message-input:focus {
     outline: none;
 }
@@ -881,4 +889,61 @@ body {
     align-items: center;
     justify-content: center;
     border: 2px solid #2f3136;
+}
+
+
+/* استایل‌های مربوط به آپلود و پیام‌های چندرسانه‌ای */
+.upload-buttons {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.upload-btn {
+    background: none;
+    border: none;
+    color: #b9bbbe;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.upload-btn:hover {
+    background-color: rgba(79, 84, 92, 0.3);
+    color: white;
+}
+
+.message-attachment {
+    margin-top: 8px;
+}
+
+.message-attachment img,
+.message-attachment video,
+.message-attachment audio {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.message-attachment audio {
+    width: 300px;
+    height: 40px;
+}
+
+/* پیش‌نمایش فایل */
+#file-preview {
+    display: flex;
+    align-items: center;
+    background: #2f3136;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+#image-preview {
+    position: relative;
+    margin: 10px 0;
+    max-width: 200px;
+    border-radius: 8px;
+    overflow: hidden;
 }

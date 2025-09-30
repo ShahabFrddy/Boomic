@@ -803,3 +803,113 @@ function logout() {
     }, 1000);
 }
 
+// مدیریت آپلود فایل
+document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-preview').style.display = 'flex';
+        
+        // نمایش پیش‌نمایش برای عکس
+        if (file.type.startsWith('image/')) {
+            showImagePreview(file);
+        }
+    }
+});
+
+function clearFile() {
+    document.getElementById('file-input').value = '';
+    document.getElementById('file-preview').style.display = 'none';
+    hideImagePreview();
+}
+
+function showImagePreview(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        // ایجاد پیش‌نمایش تصویر
+        let preview = document.getElementById('image-preview');
+        if (!preview) {
+            preview = document.createElement('div');
+            preview.id = 'image-preview';
+            preview.style.cssText = `
+                position: relative;
+                margin: 10px 0;
+                max-width: 200px;
+                border-radius: 8px;
+                overflow: hidden;
+            `;
+            document.querySelector('.input-wrapper').parentNode.insertBefore(preview, document.querySelector('.input-wrapper'));
+        }
+        
+        preview.innerHTML = `
+            <img src="${e.target.result}" style="width: 100%; height: auto; display: block;">
+            <button type="button" onclick="hideImagePreview()" style="
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: #00000080;
+                border: none;
+                color: white;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                cursor: pointer;
+            ">×</button>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function hideImagePreview() {
+    const preview = document.getElementById('image-preview');
+    if (preview) {
+        preview.remove();
+    }
+}
+
+
+// مدال برای نمایش رسانه‌ها
+function openMediaModal(url, type) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    
+    let content = '';
+    if (type === 'image') {
+        content = `<img src="${url}" style="max-width: 90%; max-height: 90%; border-radius: 8px;">`;
+    }
+    
+    modal.innerHTML = `
+        <div style="position: relative;">
+            ${content}
+            <button onclick="this.parentElement.parentElement.remove()" style="
+                position: absolute;
+                top: -40px;
+                right: 0;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 30px;
+                cursor: pointer;
+            ">×</button>
+        </div>
+    `;
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    document.body.appendChild(modal);
+}

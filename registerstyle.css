@@ -7,7 +7,8 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #36393f; /* پس زمینه تیره دیسکورد */
+    /*  background-color: #36393f; پس زمینه تیره دیسکورد */
+    background-image: url("images/discordbg.png");
     color: #dcddde; /* رنگ متن اصلی */
     display: flex;
     justify-content: center;

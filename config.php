@@ -13,6 +13,132 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+// ==================== تنظیمات آپلود فایل ====================
+define('MAX_FILE_SIZE', 50 * 1024 * 1024); // 50MB
+define('UPLOAD_PATH', 'uploads/');
+define('ALLOWED_IMAGE_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+define('ALLOWED_VIDEO_TYPES', ['mp4', 'webm', 'mov', 'avi']);
+define('ALLOWED_AUDIO_TYPES', ['mp3', 'wav', 'ogg', 'm4a', 'flac']);
+define('MAX_IMAGE_DIMENSION', 4096); // حداکثر ابعاد عکس
+
+// ایجاد پوشه آپلود اگر وجود ندارد
+if (!file_exists(UPLOAD_PATH)) {
+    mkdir(UPLOAD_PATH, 0777, true);
+}
+
+// ایجاد پوشه‌های فرعی برای سازماندهی بهتر
+$subfolders = ['images', 'videos', 'audios', 'avatars', 'server_icons'];
+foreach ($subfolders as $folder) {
+    $path = UPLOAD_PATH . $folder;
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
+    }
+}
+
+// ==================== توابع آپلود فایل ====================
+function handleFileUpload($file, $type = 'message') {
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'error' => 'خطا در آپلود فایل'];
+    }
+    
+    $file_name = $file['name'];
+    $file_size = $file['size'];
+    $file_tmp = $file['tmp_name'];
+    $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    
+    // بررسی حجم فایل
+    if ($file_size > MAX_FILE_SIZE) {
+        return ['success' => false, 'error' => 'حجم فایل بیش از حد مجاز است (حداکثر 50MB)'];
+    }
+    
+    // بررسی نوع فایل و تعیین پوشه مقصد
+    if (in_array($file_extension, ALLOWED_IMAGE_TYPES)) {
+        $file_type = 'image';
+        $subfolder = 'images';
+        
+        // بررسی ابعاد عکس
+        $image_info = getimagesize($file_tmp);
+        if ($image_info) {
+            $width = $image_info[0];
+            $height = $image_info[1];
+            if ($width > MAX_IMAGE_DIMENSION || $height > MAX_IMAGE_DIMENSION) {
+                return ['success' => false, 'error' => 'ابعاد عکس بیش از حد مجاز است'];
+            }
+        }
+        
+    } elseif (in_array($file_extension, ALLOWED_VIDEO_TYPES)) {
+        $file_type = 'video';
+        $subfolder = 'videos';
+    } elseif (in_array($file_extension, ALLOWED_AUDIO_TYPES)) {
+        $file_type = 'audio';
+        $subfolder = 'audios';
+    } else {
+        return ['success' => false, 'error' => 'نوع فایل مجاز نیست'];
+    }
+    
+    // تولید نام یکتا برای فایل
+    $unique_name = uniqid() . '_' . bin2hex(random_bytes(8)) . '.' . $file_extension;
+    $upload_path = UPLOAD_PATH . $subfolder . '/' . $unique_name;
+    
+    // آپلود فایل
+    if (move_uploaded_file($file_tmp, $upload_path)) {
+        return [
+            'success' => true,
+            'file_path' => $subfolder . '/' . $unique_name,
+            'file_type' => $file_type,
+            'original_name' => $file_name,
+            'file_size' => $file_size
+        ];
+    } else {
+        return ['success' => false, 'error' => 'خطا در ذخیره فایل'];
+    }
+}
+
+// تابع ایجاد thumbnail برای ویدیو
+function createVideoThumbnail($videoPath, $filename) {
+    if (!extension_loaded('ffmpeg')) {
+        return false;
+    }
+    
+    try {
+        $thumbnail_name = 'thumb_' . pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
+        $thumbnail_path = UPLOAD_PATH . 'images/' . $thumbnail_name;
+        
+        // گرفتن فریم از ثانیه 5 ویدیو
+        $command = "ffmpeg -i " . escapeshellarg($videoPath) . " -ss 00:00:05 -vframes 1 -q:v 2 " . escapeshellarg($thumbnail_path) . " 2>&1";
+        exec($command, $output, $returnCode);
+        
+        return $returnCode === 0 ? 'images/' . $thumbnail_name : false;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+// تابع بررسی درخواست AJAX
+function isAjaxRequest() {
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+}
+
+// تابع حذف فایل‌های قدیمی (برای cron job)
+function cleanupOldFiles($days = 30) {
+    $files = glob(UPLOAD_PATH . '*/*');
+    $now = time();
+    $deleted = 0;
+    
+    foreach ($files as $file) {
+        if (is_file($file)) {
+            if ($now - filemtime($file) >= 60 * 60 * 24 * $days) {
+                unlink($file);
+                $deleted++;
+            }
+        }
+    }
+    
+    return $deleted;
+}
+
+// ==================== توابع اصلی ====================
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
@@ -23,6 +149,24 @@ function getUser($id) {
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
+function generateToken($length = 32) {
+    return bin2hex(random_bytes($length));
+}
+
+function isMobileDevice() {
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    return preg_match('/(android|iphone|ipod|blackberry|windows phone)/i', $userAgent);
+}
+
+function cleanupExpiredSessions() {
+    global $pdo;
+    $stmt = $pdo->prepare("DELETE FROM user_sessions WHERE expires_at < NOW()");
+    $stmt->execute();
+}
+
+// اجرای تمیزکاری در هر درخواست
+cleanupExpiredSessions();
 
 function getFriends($user_id) {
     global $pdo;
@@ -189,5 +333,56 @@ function useInvite($code, $user_id) {
         $pdo->rollBack();
         return false;
     }
+}
+
+// تابع جدید: دریافت اطلاعات فایل برای نمایش
+function getFileInfo($file_path) {
+    $full_path = UPLOAD_PATH . $file_path;
+    if (!file_exists($full_path)) {
+        return null;
+    }
+    
+    $file_info = pathinfo($full_path);
+    $file_type = getFileType($file_info['extension']);
+    
+    return [
+        'path' => $file_path,
+        'full_path' => $full_path,
+        'name' => $file_info['basename'],
+        'extension' => $file_info['extension'],
+        'type' => $file_type,
+        'size' => filesize($full_path),
+        'url' => $full_path // یا آدرس کامل اگر نیاز باشد
+    ];
+}
+
+// تابع جدید: تشخیص نوع فایل
+function getFileType($extension) {
+    $extension = strtolower($extension);
+    
+    if (in_array($extension, ALLOWED_IMAGE_TYPES)) {
+        return 'image';
+    } elseif (in_array($extension, ALLOWED_VIDEO_TYPES)) {
+        return 'video';
+    } elseif (in_array($extension, ALLOWED_AUDIO_TYPES)) {
+        return 'audio';
+    } else {
+        return 'unknown';
+    }
+}
+
+// تابع جدید: بررسی امنیت فایل آپلود شده
+function isFileSafe($file_path) {
+    $allowed_mime_types = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'video/mp4', 'video/webm', 'video/quicktime',
+        'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a'
+    ];
+    
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime_type = finfo_file($finfo, $file_path);
+    finfo_close($finfo);
+    
+    return in_array($mime_type, $allowed_mime_types);
 }
 ?>

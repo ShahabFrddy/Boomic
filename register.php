@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ثبت‌نام - Discord Clone</title>
-    <link rel="stylesheet" href="registerstyle.css?v=2"> </head>
+    <link rel="stylesheet" href="registerstyle.css?v=3"> </head>
 <body>
     <div class="auth-container">
         <form class="form-section-single" method="POST" action=""> 

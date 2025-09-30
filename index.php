@@ -68,7 +68,7 @@ if ($selected_server_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Clone</title>
-    <link rel="stylesheet" href="style.css?v=24">
+    <link rel="stylesheet" href="style.css?v=25">
     <script src="script.js" defer></script>
     <style>
         /* استایل‌های اضافی برای عناصر جدید */
@@ -357,22 +357,37 @@ if ($selected_server_id) {
         </div>       
         
         <div class="channels-list">
-            <div class="channel-category">کانال‌های متنی</div>
-            <?php foreach($channels as $channel): ?>
-                <div class="channel-item <?= $selected_channel_id == $channel['id'] ? 'active' : '' ?>" 
-                     onclick="location.href='index.php?server=<?= $selected_server_id ?>&channel=<?= $channel['id'] ?>'">
-                    <span class="channel-icon">#</span>
+    <!-- کانال‌های متنی -->
+    <div class="channel-category">کانال‌های متنی</div>
+    <?php foreach($channels as $channel): ?>
+        <?php if($channel['type'] == 'text'): ?>
+            <div class="channel-item <?= $selected_channel_id == $channel['id'] ? 'active' : '' ?>" 
+                 onclick="location.href='index.php?server=<?= $selected_server_id ?>&channel=<?= $channel['id'] ?>'">
+                <span class="channel-icon">#</span>
+                <?= $channel['name'] ?>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    
+    <!-- کانال‌های صوتی -->
+    <div class="channel-category" style="margin-top: 20px;">کانال‌های صوتی</div>
+        <?php foreach($channels as $channel): ?>
+            <?php if($channel['type'] == 'voice'): ?>
+                <div class="channel-item voice-channel" 
+                    onclick="joinVoiceChannel(<?= $channel['id'] ?>, '<?= $channel['name'] ?>')">
+                    <span class="channel-icon">🔊</span>
                     <?= $channel['name'] ?>
                 </div>
-            <?php endforeach; ?>
-            
-            <?php if($selected_server['owner_id'] == $user_id): ?>
-                <div class="channel-item" onclick="openModal('createChannelModal')">
-                    <span class="channel-icon">+</span>
-                    ایجاد کانال
-                </div>
             <?php endif; ?>
-        </div>
+        <?php endforeach; ?>
+        
+        <?php if($selected_server['owner_id'] == $user_id): ?>
+            <div class="channel-item" onclick="openModal('createChannelModal')">
+                <span class="channel-icon">+</span>
+                ایجاد کانال
+            </div>
+        <?php endif; ?>
+    </div>
         
         <!-- در قسمت user-menu در index.php -->
         <div class="user-menu">
@@ -520,10 +535,15 @@ if ($selected_server_id) {
                     </div>
                     <div class="form-group">
                         <label for="channel_type">نوع کانال</label>
-                        <select class="form-control" id="channel_type" name="channel_type">
-                            <option value="text">متنی</option>
-                            <option value="voice">صوتی</option>
+                        <select class="form-control" id="channel_type" name="channel_type" onchange="toggleChannelType()">
+                            <option value="text">📝 متنی</option>
+                            <option value="voice">🔊 صوتی</option>
                         </select>
+                    </div>
+                    <div id="voice-channel-info" style="display: none; background: #2f3136; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                        <p style="color: #b9bbbe; font-size: 14px; margin: 0;">
+                            کانال‌های صوتی برای مکالمه صوتی استفاده می‌شوند و امکان چت متنی ندارند.
+                        </p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -595,9 +615,12 @@ if ($selected_server_id) {
             }
 
             // مدیریت ارسال پیام
+            
             const messageTextarea = document.getElementById('message-textarea');
             const messageForm = document.getElementById('message-form');
             const sendButton = document.getElementById('send-button');
+
+            
             
             if (messageTextarea && messageForm && sendButton) {
                 messageTextarea.addEventListener('input', function() {
@@ -606,8 +629,10 @@ if ($selected_server_id) {
                     
                     if (this.value.trim() !== '') {
                         sendButton.classList.remove('hidden');
+                        messageTextarea.classList.add('space');
                     } else {
                         sendButton.classList.add('hidden');
+                        messageTextarea.classList.remove('space');
                     }
                 });
                 
@@ -620,6 +645,7 @@ if ($selected_server_id) {
                             this.value = '';
                             this.style.height = 'auto';
                             sendButton.classList.add('hidden');
+                            messageTextarea.classList.remove('space');
                         }
                     }
                 });
@@ -627,6 +653,7 @@ if ($selected_server_id) {
                 messageTextarea.style.height = 'auto';
                 messageTextarea.style.height = Math.min(messageTextarea.scrollHeight, 150) + 'px';
                 sendButton.classList.add('hidden');
+                messageTextarea.classList.remove('space');
 
                 // مدیریت ارسال با کلیک روی دکمه (جدید)
                 messageForm.addEventListener('submit', function(e) {
@@ -636,9 +663,11 @@ if ($selected_server_id) {
                         messageTextarea.value = '';
                         messageTextarea.style.height = 'auto';
                         sendButton.classList.add('hidden');
+                        messageTextarea.classList.remove('space');
                     }
                 });
             }
+            
         });
 
         // ارسال پیام با AJAX (تابع جدید)
