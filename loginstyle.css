@@ -1,0 +1,184 @@
+/* تنظیمات اولیه */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif; /* فونت را با فونت دلخواه دیسکورد جایگزین کنید */
+    background-color: #36393f; /* رنگ پس زمینه تیره دیسکورد */
+    color: #dcddde; /* رنگ متن اصلی */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* کانتینر اصلی و جعبه ورود */
+.login-container {
+    width: 100%;
+    max-width: 780px; /* عرض تقریبی کانتینر */
+    padding: 10px;
+}
+
+.login-box {
+    background-color: #30333a; /* رنگ پس زمینه جعبه ورود */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    display: flex; /* برای طرح بندی دو ستونی */
+    overflow: hidden; /* برای کنترل گوشه های گرد */
+}
+
+/* بخش فرم (سمت راست) */
+.form-section {
+    padding: 30px;
+    flex-basis: 60%; /* سهم تقریبی بخش فرم */
+}
+
+.form-section h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: right;
+}
+
+.form-section p {
+    font-size: 16px;
+    color: #a3a6aa;
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+/* استایل فیلدهای ورود */
+.input-group {
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #b9bbbe;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    background-color: #202225; /* رنگ پس زمینه فیلد ورود */
+    border: 1px solid #202225;
+    border-radius: 3px;
+    color: #dcddde;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #7289da; /* رنگ آبی دیسکورد هنگام فوکوس */
+    outline: none;
+}
+
+/* لینک فراموشی رمز عبور */
+.forgot-password {
+    display: block;
+    font-size: 12px;
+    color: #00aff4; /* آبی روشن لینک دیسکورد */
+    text-decoration: none;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* دکمه ورود */
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #5865f2; /* رنگ دکمه ورود (بنفش دیسکورد) */
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.login-button:hover {
+    background-color: #4752c4; /* رنگ هنگام هاور */
+}
+
+/* لینک ثبت نام */
+.register-link {
+    font-size: 14px;
+    color: #a3a6aa;
+    margin-top: 20px;
+    text-align: right;
+}
+
+.register-link a {
+    color: #00aff4;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+/* بخش QR Code (سمت چپ) */
+.qr-section {
+    flex-basis: 40%; /* سهم تقریبی بخش QR Code */
+    background-color: #202225; /* پس زمینه کمی تیره‌تر */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.qr-code-placeholder img {
+    width: 150px; /* اندازه تصویر QR Code */
+    height: 150px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.qr-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.qr-section p {
+    font-size: 14px;
+    color: #a3a6aa;
+    line-height: 1.4;
+}
+
+.mobile-app-text {
+    font-weight: bold;
+    color: #00aff4; /* آبی روشن برای تاکید */
+}
+
+/* پاسخگویی (اختیاری: برای نمایش بهتر در صفحات کوچک) */
+@media (max-width: 600px) {
+    .login-box {
+        flex-direction: column; /* در صفحات کوچک به صورت تک ستونی نمایش داده شود */
+    }
+
+    .form-section, .qr-section {
+        flex-basis: 100%;
+    }
+
+    .qr-section {
+        padding-top: 0;
+    }
+}

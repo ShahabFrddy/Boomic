@@ -740,3 +740,145 @@ body {
     margin-bottom: 15px;
     line-height: 1.5;
 }
+
+
+/* استایل‌های user-menu با دکمه خروج */
+.user-menu {
+    background-color: #292b2f;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.user-info {
+    flex-grow: 1;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+}
+
+.user-tag {
+    color: #b9bbbe;
+    font-size: 12px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: #b9bbbe;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    color: white;
+    background-color: rgba(79, 84, 92, 0.4);
+}
+
+/* مودال تایید خروج */
+.logout-confirmation-modal .modal-content {
+    max-width: 400px;
+}
+
+.logout-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.logout-options .btn {
+    flex: 1;
+    padding: 12px;
+}
+
+.btn-logout {
+    background-color: #5865f2;
+    color: white;
+}
+
+.btn-logout:hover {
+    background-color: #4752c4;
+}
+
+.btn-cancel {
+    background-color: #4f545c;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #686d73;
+}
+
+
+/* استایل تیک آبی */
+.verified-badge {
+    color: #5865f2;
+    margin-right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.verified-badge svg {
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 0 2px rgba(88, 101, 242, 0.3));
+}
+
+/* تیک در پیام‌ها */
+.message-author .verified-badge {
+    margin-right: 6px;
+}
+
+/* تیک در لیست اعضا */
+.member-item .verified-badge {
+    margin-right: 6px;
+}
+
+/* تیک در پروفایل کاربر */
+.user-profile-name .verified-badge {
+    margin-right: 8px;
+}
+
+/* تیک در سرورها */
+.server-verified {
+    position: relative;
+}
+
+.server-verified::after {
+    content: "✓";
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #5865f2;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #2f3136;
+}

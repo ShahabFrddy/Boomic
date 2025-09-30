@@ -19,7 +19,7 @@ function isLoggedIn() {
 
 function getUser($id) {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, username, email, password, avatar, bio, verified, created_at FROM users WHERE id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
@@ -55,7 +55,7 @@ function getPendingRequests($user_id) {
 function getDirectMessages($user1_id, $user2_id) {
     global $pdo;
     $stmt = $pdo->prepare("
-        SELECT dm.*, u.username, u.avatar 
+        SELECT dm.*, u.username, u.avatar, u.verified 
         FROM direct_messages dm 
         JOIN users u ON dm.sender_id = u.id 
         WHERE (dm.sender_id = ? AND dm.receiver_id = ?) 
@@ -91,7 +91,7 @@ function getOrCreateDirectChannel($user1_id, $user2_id) {
 function getServerMembers($server_id) {
     global $pdo;
     $stmt = $pdo->prepare("
-        SELECT u.id, u.username, u.avatar, u.bio, u.created_at,
+        SELECT u.id, u.username, u.avatar, u.bio, u.verified, u.created_at,
                CASE WHEN s.owner_id = u.id THEN 1 ELSE 0 END as is_owner
         FROM users u
         LEFT JOIN server_members sm ON u.id = sm.user_id AND sm.server_id = ?

@@ -292,7 +292,17 @@ async function showUserProfile(userId) {
                 <div class="user-profile-header">
                     <img class="user-profile-avatar" src="uploads/${data.avatar}" alt="${data.username}"
                          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTUiIGZpbGw9IiNkY2RkZGUiLz4KPHBhdGggZD0iTTQwIDUwQzUwIDUwIDU4IDU4IDU4IDY4SDIyQzIyIDU4IDMwIDUwIDQwIDUwWiIgZmlsbD0iI2RjZGRkZSIvPgo8L3N2Zz4K'">
-                    <div class="user-profile-name">${data.username}</div>
+                    
+                    <div class="user-profile-name">
+                        ${data.username}
+                        ${data.verified == 1 ? `
+                            <span class="verified-badge" title="تایید شده">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </span>
+                        ` : ''}
+                    </div>
                     <div class="user-profile-info">عضو شده در: ${data.join_date}</div>
                 </div>
                 <div class="user-profile-body">
@@ -712,3 +722,84 @@ function closeServerSettings() {
         window.currentSettingsModal = null;
     }
 }
+
+// نمایش تایید خروج
+function showLogoutConfirmation() {
+    const logoutModal = document.createElement('div');
+    logoutModal.className = 'modal logout-confirmation-modal';
+    logoutModal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>خروج از حساب کاربری</h3>
+                <button type="button" class="back-button" onclick="closeLogoutConfirmation()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px; color: #5865f2; margin-bottom: 10px;">🚪</div>
+                    <h4 style="color: white; margin-bottom: 10px;">آیا می‌خواهید خارج شوید؟</h4>
+                    <p style="color: #b9bbbe; font-size: 14px;">
+                        پس از خروج، برای دسترسی دوباره باید وارد حساب کاربری خود شوید.
+                    </p>
+                </div>
+                
+                <div class="logout-options">
+                    <button type="button" class="btn btn-cancel" onclick="closeLogoutConfirmation()">
+                        انصراف
+                    </button>
+                    <button type="button" class="btn btn-logout" onclick="logout()">
+                        بله، خارج شوم
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(logoutModal);
+    logoutModal.style.display = 'flex';
+    window.currentLogoutModal = logoutModal;
+
+    // بستن مودال با کلیک خارج
+    logoutModal.addEventListener('click', function(e) {
+        if (e.target === logoutModal) {
+            closeLogoutConfirmation();
+        }
+    });
+
+    // بستن مودال با کلید ESC
+    document.addEventListener('keydown', function closeOnEscape(e) {
+        if (e.key === 'Escape') {
+            closeLogoutConfirmation();
+            document.removeEventListener('keydown', closeOnEscape);
+        }
+    });
+}
+
+// بستن مودال تایید خروج
+function closeLogoutConfirmation() {
+    if (window.currentLogoutModal) {
+        window.currentLogoutModal.remove();
+        window.currentLogoutModal = null;
+    }
+}
+
+// انجام عملیات خروج
+function logout() {
+    // نمایش پیام در حال خروج
+    if (window.currentLogoutModal) {
+        window.currentLogoutModal.querySelector('.modal-body').innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; color: #5865f2; margin-bottom: 10px;">⏳</div>
+                <h4 style="color: white; margin-bottom: 10px;">در حال خروج...</h4>
+                <p style="color: #b9bbbe; font-size: 14px;">
+                    لطفاً کمی صبر کنید
+                </p>
+            </div>
+        `;
+    }
+
+    // ریدایرکت به صفحه خروج
+    setTimeout(() => {
+        window.location.href = 'logout.php';
+    }, 1000);
+}
+

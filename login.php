@@ -30,38 +30,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود - Discord Clone</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <title>ورود به دیسکورد</title>
+    <link rel="stylesheet" href="loginstyle.css?v=3">
 </head>
 <body>
-    <div class="auth-container">
-        <form class="auth-form" method="POST" action="">
-            <h2>خوش آمدید!</h2>
+    <div class="login-container">
+        <div class="login-box"> 
             
-            <?php if($error): ?>
-                <div style="color: #ed4245; margin-bottom: 15px; text-align: center;"><?= $error ?></div>
-            <?php endif; ?>
-            
-            <div class="form-group">
-                <label for="username">ایمیل یا نام کاربری</label>
-                <input type="text" class="form-control" id="username" name="username" value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>" required>
+            <div class="form-section">
+                <form class="auth-form" method="POST" action="">
+                    <h1>خوش آمدید!</h1>
+                    <p class="subtitle">از دیدن دوباره شما خوشحالیم!</p>
+                    
+                    <?php if($error): ?>
+                        <div class="error-message" style="color: #ed4245; margin-bottom: 15px; text-align: center;"><?= $error ?></div>
+                    <?php endif; ?>
+                    
+                    <div class="input-group">
+                        <label for="username">ایمیل یا نام کاربری</label>
+                        <input type="text" class="form-control" id="username" name="username" value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="password">رمز عبور</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    
+                    <a href="#" class="forgot-password">رمز عبور خود را فراموش کرده‌اید؟</a>
+                    
+                    <button type="submit" class="login-button">ورود</button>
+                    
+                    <div class="register-link">
+                        نیاز به حساب کاربری دارید؟ <a href="register.php">ثبت نام</a>
+                    </div>
+                </form>
             </div>
             
-            <div class="form-group">
-                <label for="password">رمز عبور</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+            <div class="qr-section">
+                <div class="qr-code-placeholder">
+                    <img src="https://via.placeholder.com/150/202225/ffffff?text=QR+Code" alt="کد QR برای ورود">
+                </div>
+                <h3>ورود با QR Code</h3>
+                <p>این کد را با <span class="mobile-app-text">برنامه موبایل دیسکورد</span> اسکن کنید تا فورا وارد شوید.</p>
             </div>
             
-            <button type="submit" class="btn">ورود</button>
-            
-            <div class="auth-link">
-                <a href="register.php">نیاز به حساب کاربری دارید؟</a>
-            </div>
-        </form>
+        </div>
     </div>
 </body>
 </html>

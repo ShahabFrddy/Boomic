@@ -68,7 +68,7 @@ if ($selected_server_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Clone</title>
-    <link rel="stylesheet" href="style.css?v=23">
+    <link rel="stylesheet" href="style.css?v=24">
     <script src="script.js" defer></script>
     <style>
         /* استایل‌های اضافی برای عناصر جدید */
@@ -346,7 +346,15 @@ if ($selected_server_id) {
     <div class="channels-sidebar">
         <div class="server-header">
             <?= $selected_server['name'] ?>
-        </div>        
+            <?php if($selected_server['verified'] == 1): ?>
+                <span class="verified-badge" title="سرور تایید شده">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </span>
+            <?php endif; ?>
+            
+        </div>       
         
         <div class="channels-list">
             <div class="channel-category">کانال‌های متنی</div>
@@ -366,12 +374,20 @@ if ($selected_server_id) {
             <?php endif; ?>
         </div>
         
+        <!-- در قسمت user-menu در index.php -->
         <div class="user-menu">
             <img class="user-avatar" src="uploads/<?= $user['avatar'] ?>" alt="<?= $user['username'] ?>"
-                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxMiIgcj0iNiIgZmlsbD0iI2RjZGRkZSIvPgo8cGF0aCBkPSJNMTYgMjBDMjAgMjAgMjQgMjIgMjQgMjZIMThDMTggMjIgMTYgMjAgMTYgMjBaIiBmaWxsPSIjZGNkZGRlIi8+Cjwvc3ZnPgo='">
+                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxMiIgcj0iNiIgZmlsbD0iI2RjZGRkZSIvPgo8cGF0aCBkPSJNMTYgMjBDMjAgMjAgMjQgMjIgMjQgMjZIMThDMTggMjIgMTYgMjAgMTYgMjBaIiBmaWxsPSIjZGNkZGRlIi8+Cjwvc3ZnPgo='">
             <div class="user-info">
                 <div class="username"><?= $user['username'] ?></div>
                 <div class="user-tag">#<?= $user_id ?></div>
+            </div>
+            <div class="user-actions">
+                <button class="logout-btn" onclick="showLogoutConfirmation()" title="خروج">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -394,8 +410,11 @@ if ($selected_server_id) {
                 </div>
             </div>
             
+            <!-- در قسمت messages-container -->
             <div class="messages-container" id="messages-container">
-                <?php foreach($messages as $message): ?>
+                <?php foreach($messages as $message): 
+                    $message_user = getUser($message['user_id']);
+                ?>
                     <div class="message">
                         <img class="message-avatar" src="uploads/<?= $message['avatar'] ?>" alt="<?= $message['username'] ?>"
                             onclick="showUserProfile(<?= $message['user_id'] ?>)"
@@ -404,6 +423,14 @@ if ($selected_server_id) {
                             <div class="message-header">
                                 <span class="message-author" onclick="showUserProfile(<?= $message['user_id'] ?>)">
                                     <?= htmlspecialchars($message['username']) ?>
+                                    <?php if($message_user['verified'] == 1): ?>
+                                        <span class="verified-badge" title="تایید شده">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                            </svg>
+                                        </span>
+                                    <?php endif; ?>
+                                    
                                 </span>
                                 <span class="message-time"><?= date('H:i', strtotime($message['created_at'])) ?></span>
                             </div>
@@ -549,8 +576,25 @@ if ($selected_server_id) {
     </div>
 
     <script>
-        // مدیریت ارسال پیام در چت
+        // مدیریت ارسال پیام در چت و سیستم آپدیت خودکار
         document.addEventListener('DOMContentLoaded', function() {
+            // اگر در کانالی هستیم، سیستم پیام را راه‌اندازی کن
+            <?php if($selected_channel_id && isset($messages) && !empty($messages)): ?>
+                // پیدا کردن آخرین ID پیام
+                const lastMessageId = <?= end($messages)['id'] ?>;
+                initializeMessageSystem(<?= $selected_channel_id ?>, lastMessageId);
+            <?php elseif($selected_channel_id): ?>
+                // اگر کانال انتخاب شده اما پیامی نیست
+                initializeMessageSystem(<?= $selected_channel_id ?>, 0);
+            <?php endif; ?>
+            
+            // اسکرول به پایین در پیام‌ها
+            const messagesContainer = document.getElementById('messages-container');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // مدیریت ارسال پیام
             const messageTextarea = document.getElementById('message-textarea');
             const messageForm = document.getElementById('message-form');
             const sendButton = document.getElementById('send-button');
@@ -571,7 +615,11 @@ if ($selected_server_id) {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         if (this.value.trim() !== '') {
-                            messageForm.submit();
+                            // ارسال پیام با AJAX (جدید)
+                            sendMessage(this.value.trim());
+                            this.value = '';
+                            this.style.height = 'auto';
+                            sendButton.classList.add('hidden');
                         }
                     }
                 });
@@ -579,14 +627,228 @@ if ($selected_server_id) {
                 messageTextarea.style.height = 'auto';
                 messageTextarea.style.height = Math.min(messageTextarea.scrollHeight, 150) + 'px';
                 sendButton.classList.add('hidden');
-            }
 
-            // اسکرول به پایین در پیام‌ها
+                // مدیریت ارسال با کلیک روی دکمه (جدید)
+                messageForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (messageTextarea.value.trim() !== '') {
+                        sendMessage(messageTextarea.value.trim());
+                        messageTextarea.value = '';
+                        messageTextarea.style.height = 'auto';
+                        sendButton.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        // ارسال پیام با AJAX (تابع جدید)
+        async function sendMessage(content) {
+            const channelId = <?= $selected_channel_id ?? 'null' ?>;
+            if (!channelId) return;
+            
+            try {
+                const response = await fetch('send_message.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `channel_id=${channelId}&message=${encodeURIComponent(content)}`
+                });
+                
+                if (response.ok) {
+                    console.log('Message sent successfully');
+                    // پیام به صورت خودکار از طریق polling اضافه می‌شود
+                } else {
+                    throw new Error('Failed to send message');
+                }
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('خطا در ارسال پیام');
+            }
+        }
+
+        // وقتی کاربر صفحه را ترک می‌کند (جدید)
+        window.addEventListener('beforeunload', function() {
+            stopMessageSystem();
+        });
+
+        // وقتی کاربر به کانال دیگری می‌رود (اگر از طریق JavaScript کانال عوض می‌کنید)
+        function switchChannel(newChannelId) {
+            stopMessageSystem();
+            initializeMessageSystem(newChannelId, 0);
+        }
+
+        //چت آپدیت چنل ها
+
+        // متغیرهای global برای مدیریت پیام‌ها
+        let currentChannelId = null;
+        let lastMessageId = 0;
+        let messagePollInterval = null;
+
+        // مقداردهی اولیه سیستم پیام‌ها
+        function initializeMessageSystem(channelId, initialLastMessageId = 0) {
+            currentChannelId = channelId;
+            lastMessageId = initialLastMessageId;
+            
+            // توقف interval قبلی اگر وجود دارد
+            if (messagePollInterval) {
+                clearInterval(messagePollInterval);
+            }
+            
+            // شروع polling برای پیام‌های جدید
+            messagePollInterval = setInterval(checkForNewMessages, 3000); // هر 3 ثانیه
+            
+            console.log(`Message system initialized for channel ${channelId}, last message: ${lastMessageId}`);
+        }
+
+        // بررسی پیام‌های جدید
+        async function checkForNewMessages() {
+            if (!currentChannelId) return;
+            
+            try {
+                const response = await fetch(`get_channel_messages.php?channel_id=${currentChannelId}&last_message_id=${lastMessageId}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('Error fetching new messages:', data.error);
+                    return;
+                }
+                
+                if (data.has_new_messages && data.messages.length > 0) {
+                    console.log(`Found ${data.messages.length} new messages`);
+                    appendNewMessages(data.messages);
+                    lastMessageId = data.last_message_id;
+                }
+            } catch (error) {
+                console.error('Error checking for new messages:', error);
+            }
+        }
+
+        // اضافه کردن پیام‌های جدید به صفحه
+        function appendNewMessages(messages) {
+            const messagesContainer = document.getElementById('messages-container');
+            if (!messagesContainer) return;
+            
+            const isScrolledToBottom = isMessagesContainerAtBottom();
+            
+            messages.forEach(message => {
+                const messageElement = createMessageElement(message);
+                messagesContainer.appendChild(messageElement);
+            });
+            
+            // اگر کاربر در پایین بود یا نزدیک پایین بود، اسکرول کن
+            if (isScrolledToBottom || isNearBottom()) {
+                scrollToBottom();
+            }
+            
+            // پخش صدای نوتیفیکیشن اگر کاربر در تب دیگر است
+            if (!document.hasFocus() && messages.length > 0) {
+                playMessageSound();
+            }
+        }
+
+        // ایجاد المان پیام
+        function createMessageElement(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <img class="message-avatar" src="uploads/${message.avatar}" alt="${message.username}"
+                    onclick="showUserProfile(${message.user_id})"
+                    onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM1ODY1RjIiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNy41IiBmaWxsPSIjZGNkZGRlIi8+CjxwYXRoIGQ9Ik0yMCAyNUMzMCAyNSAzOCAzMCAzOCAzNUgyQzIgMzAgMTAgMjUgMjAgMjVaIiBmaWxsPSIjZGNkZGRlIi8+Cjwvc3ZnPgo='">
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author" onclick="showUserProfile(${message.user_id})">
+                            ${message.username}
+                             ${message.verified == 1 ? `
+                                <span class="verified-badge" title="تایید شده">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                    </svg>
+                                </span>
+                            ` : ''}
+                        </span>
+                        <span class="message-time">${message.time}</span>
+                    </div>
+                    <div class="message-text">${message.content}</div>
+                </div>
+            `;
+            
+            return messageDiv;
+        }
+
+        // بررسی آیا کاربر در پایین صفحه است
+        function isMessagesContainerAtBottom() {
+            const messagesContainer = document.getElementById('messages-container');
+            if (!messagesContainer) return false;
+            
+            const threshold = 100; // 100px از پایین
+            return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < threshold;
+        }
+
+        // بررسی آیا کاربر نزدیک پایین صفحه است
+        function isNearBottom() {
+            const messagesContainer = document.getElementById('messages-container');
+            if (!messagesContainer) return false;
+            
+            const threshold = 300; // 300px از پایین
+            return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < threshold;
+        }
+
+        // اسکرول به پایین
+        function scrollToBottom() {
             const messagesContainer = document.getElementById('messages-container');
             if (messagesContainer) {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-        });
+        }
+
+        // پخش صدای نوتیفیکیشن
+        function playMessageSound() {
+            // ایجاد یک sound notification ساده
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (error) {
+                console.log('Audio context not supported');
+            }
+        }
+
+        // توقف سیستم پیام‌ها وقتی کاربر صفحه را ترک می‌کند
+        function stopMessageSystem() {
+            if (messagePollInterval) {
+                clearInterval(messagePollInterval);
+                messagePollInterval = null;
+            }
+            currentChannelId = null;
+            lastMessageId = 0;
+            console.log('Message system stopped');
+        }
+
+        // وقتی کاربر از کانال خارج می‌شود
+        function leaveChannel() {
+            stopMessageSystem();
+        }
+
+        // وقتی کاربر به کانال جدید می‌رود
+        function switchChannel(newChannelId) {
+            stopMessageSystem();
+            initializeMessageSystem(newChannelId);
+        }
     </script>
 
 </body>

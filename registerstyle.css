@@ -1,0 +1,122 @@
+/* تنظیمات اولیه */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #36393f; /* پس زمینه تیره دیسکورد */
+    color: #dcddde; /* رنگ متن اصلی */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    direction: rtl; 
+    text-align: right;
+    padding: 20px;
+}
+
+/* کانتینر اصلی */
+.auth-container {
+    width: 100%;
+    max-width: 480px; /* عرض مناسب برای فرم ثبت‌نام تکی */
+    padding: 10px;
+}
+
+/* --- بخش فرم تکی (Single Column) --- */
+.form-section-single {
+    background-color: #30333a; /* رنگ پس زمینه جعبه ورود */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    padding: 32px;
+}
+
+.form-section-single h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* پیام خطا */
+.error-message {
+    background-color: rgba(237, 66, 69, 0.1); 
+    border-radius: 3px;
+    padding: 10px;
+    border: 1px solid #ed4245; /* قرمز دیسکورد برای خطا */
+    color: #ed4245 !important; 
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* استایل فیلدهای ورود */
+.input-group {
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #b9bbbe; /* رنگ خاکستری روشن برای لیبل */
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.input-group input.form-control {
+    width: 100%;
+    padding: 10px;
+    background-color: #202225; 
+    border: 1px solid #202225;
+    border-radius: 3px;
+    color: #dcddde;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.input-group input.form-control:focus {
+    border-color: #7289da; /* رنگ آبی دیسکورد هنگام فوکوس */
+    outline: none;
+}
+
+/* دکمه ثبت‌نام */
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #5865f2; /* رنگ دکمه (بنفش دیسکورد) */
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px; /* فاصله از فیلدها */
+    margin-bottom: 10px;
+}
+
+.login-button:hover {
+    background-color: #4752c4;
+}
+
+/* لینک ورود (قبلاً حساب دارید؟) */
+.register-link-single {
+    font-size: 14px;
+    color: #a3a6aa;
+    margin-top: 10px;
+    text-align: right;
+}
+
+.register-link-single a {
+    color: #00aff4; /* آبی روشن لینک دیسکورد */
+    text-decoration: none;
+}
+
+.register-link-single a:hover {
+    text-decoration: underline;
+}
