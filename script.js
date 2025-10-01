@@ -913,3 +913,109 @@ function openMediaModal(url, type) {
     
     document.body.appendChild(modal);
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // انتخاب عناصر کلیدی
+    const serversSidebar = document.querySelector('.servers-sidebar');
+    const channelsSidebar = document.querySelector('.channels-sidebar');
+    const chatArea = document.querySelector('.chat-area');
+    
+    // دکمه‌هایی که برای باز و بسته کردن استفاده می‌شوند
+    // در چت هدر (برای باز کردن سایدبار کانال‌ها)
+    const openChannelsBtn = chatArea.querySelector('.back-button'); 
+    // برای سادگی، فرض می‌کنیم همین دکمه 'back-button' در chat-header کار منو را انجام می‌دهد.
+
+    // انتخاب یک آیکون سرور (برای شبیه‌سازی کلیک روی سرور)
+    const serverIcons = document.querySelectorAll('.server-icon:not(.add-server)');
+
+    // ----------------------------------------------------
+    // منطق باز و بسته کردن سایدبار سرورها (Servers Sidebar)
+    // ----------------------------------------------------
+
+    // در حالت موبایل، هر بار که روی آیکون سرور کلیک شود، سایدبار کانال‌ها را باز می‌کند
+    serverIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                // بستن احتمالی سایدبار سرورها اگر باز باشد
+                serversSidebar.classList.remove('open'); 
+                
+                // باز کردن سایدبار کانال‌ها
+                channelsSidebar.classList.add('open');
+                // تغییر محتوای هدر چت برای نمایش دکمه بستن کانال‌ها
+                updateChatHeader(true); 
+            }
+            // منطق دسکتاپ: فقط کانال‌ها را بارگذاری می‌کند (نیاز به منطق پیچیده‌تر با Framework/AJAX)
+        });
+    });
+    
+    
+    // ----------------------------------------------------
+    // منطق باز و بسته کردن سایدبار کانال‌ها (Channels Sidebar)
+    // ----------------------------------------------------
+
+    // دکمه منو/بازگشت در هدر چت
+    if (openChannelsBtn) {
+        openChannelsBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                // اگر سایدبار کانال‌ها باز است، آن را ببند (برگشت به نمای اصلی چت)
+                if (channelsSidebar.classList.contains('open')) {
+                    channelsSidebar.classList.remove('open');
+                    // به جای باز کردن سایدبار سرورها، به نمای چت برمی‌گردیم
+                    updateChatHeader(false); // بازگشت به نمای اصلی (کانال فعلی)
+                } else {
+                    // اگر هیچ‌کدام باز نیست، سایدبار سرورها را باز کن
+                    // یا مستقیماً سایدبار کانال‌ها را باز کن (شبیه به حالت دیسکورد)
+                    // در این پیاده‌سازی، فرض می‌کنیم برای باز کردن منو، دکمه منو در chat-header را می‌زنیم
+                    
+                    // منطق دیسکورد موبایل: دکمه منو در هدر چت => باز کردن کانال‌ها 
+                    // (که بعد از انتخاب سرور باید باز شوند)
+                    // برای سادگی: فرض می‌کنیم در موبایل، اگر کانال‌ها باز نیستند، دکمه منو باید کانال‌ها را باز کند
+                    // اما بهتر است این منطق در سرورها پیاده شود.
+                    // برای شروع، فرض می‌کنیم دکمه منو در chat-header فقط کانال‌های فعلی را می‌بندد.
+                    
+                    // اگر می‌خواهید با اولین کلیک منو، سایدبار سرورها باز شود:
+                    // serversSidebar.classList.add('open');
+                }
+            }
+        });
+    }
+    
+    // وقتی روی یکی از کانال‌ها کلیک می‌شود
+    const channelItems = document.querySelectorAll('.channel-item');
+    channelItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                // بستن سایدبار کانال‌ها و برگشت به نمای چت
+                channelsSidebar.classList.remove('open');
+                // و به‌روزرسانی هدر
+                updateChatHeader(false);
+            }
+        });
+    });
+
+    // ----------------------------------------------------
+    // تابع کمکی برای مدیریت وضعیت هدر چت (نمایش/مخفی کردن دکمه منو/بازگشت)
+    // ----------------------------------------------------
+    function updateChatHeader(isChannelsOpen) {
+        // در اینجا می‌توانید نماد دکمه 'back-button' را تغییر دهید (مثلاً از آیکون منو به آیکون برگشت)
+        if (openChannelsBtn) {
+            // برای سادگی، فرض می‌کنیم یک آیکون ساده داریم
+            // اگر از فونت آوسام استفاده می‌کنید:
+            // openChannelsBtn.innerHTML = isChannelsOpen ? '<i class="fas fa-arrow-left"></i>' : '<i class="fas fa-bars"></i>';
+            openChannelsBtn.textContent = isChannelsOpen ? '←' : '☰'; 
+        }
+    }
+    
+    // فراخوانی اولیه برای تنظیم متن دکمه
+    updateChatHeader(false);
+    
+    // بستن سایدبارها هنگام تغییر اندازه صفحه (از موبایل به دسکتاپ)
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            serversSidebar.classList.remove('open');
+            channelsSidebar.classList.remove('open');
+            updateChatHeader(false); 
+        }
+    });
+});
